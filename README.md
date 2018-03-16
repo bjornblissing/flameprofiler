@@ -68,3 +68,10 @@ Add compile time using built in compiler macro:
 Performance
 -----------
 The profiler will do timing with microsecond precision. Each log point is 128 bytes and stored in internal memory. The log is written to disk when the program exits. When ```USE_PROFILER``` is undefined the zone definition macros will expand to nothing, thus having no effect on the compiled executable.
+
+Further reading
+---------------
+[Using Chrome://tracing to view your inline profiling data ](https://www.gamasutra.com/view/news/176420/Indepth_Using_Chrometracing_to_view_your_inline_profiling_data.php)
+
+[Chrome Tracing as Profiler Frontend](https://aras-p.info/blog/2017/01/23/Chrome-Tracing-as-Profiler-Frontend/)
+
