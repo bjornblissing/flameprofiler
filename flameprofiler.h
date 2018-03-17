@@ -70,10 +70,10 @@ namespace Profiler {
 			~FlameGraphWriter()
 			{
 				// Find first stored profiler time
-				uint64_t profilerTimerStart = std::numeric_limits<uint64_t>::max();
+				uint64_t profilerTimerStart = (std::numeric_limits<uint64_t>::max)();
 
 				for (const auto& tracepoint : m_tracepoints) {
-					profilerTimerStart = std::min(profilerTimerStart, tracepoint.timeStart);
+					profilerTimerStart = (std::min)(profilerTimerStart, tracepoint.timeStart);
 				}
 
 				// Open file
