@@ -46,12 +46,11 @@
 #include <limits>
 #include <thread>
 #include <cstdio>
+#include <chrono>
 
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include <sys/time.h>
-#include <sys/types.h>
 #include <unistd.h>
 #endif
 
@@ -159,50 +158,23 @@ namespace Profiler {
 				snprintf(m_tracepoint.category, sizeof(m_tracepoint.category), "%s", category);
 				size_t thread = std::hash<std::thread::id>()(std::this_thread::get_id());
 				m_tracepoint.threadId = static_cast<uint32_t>(thread);
+				auto timer = std::chrono::high_resolution_clock::now();
+				m_tracepoint.timeStart = std::chrono::duration_cast<std::chrono::microseconds>(timer.time_since_epoch()).count();
 #ifdef _WIN32
-				LARGE_INTEGER timer;
-				QueryPerformanceCounter(&timer);
-				convertToMicroSecond(timer);
-				m_tracepoint.timeStart = timer.QuadPart;
 				m_tracepoint.processId = static_cast<uint32_t>(GetCurrentProcessId());
 #else
-				struct timeval tv;
-				struct timezone tz;
-				::gettimeofday(&tv, &tz);
-				m_tracepoint.timeStart = tv.tv_sec * TICKS_PER_SECOND + tv.tv_usec;
 				m_tracepoint.processId = static_cast<uint32_t>(::getpid());
 #endif
 			}
 
 			~Zone()
 			{
-#ifdef _WIN32
-				LARGE_INTEGER timer;
-				QueryPerformanceCounter(&timer);
-				convertToMicroSecond(timer);
-				m_tracepoint.timeEnd = timer.QuadPart;
-#else
-				struct timeval tv;
-				struct timezone tz;
-				::gettimeofday(&tv, &tz);
-				m_tracepoint.timeEnd = tv.tv_sec * TICKS_PER_SECOND + tv.tv_usec;
-#endif
+				auto timer = std::chrono::high_resolution_clock::now();
+				m_tracepoint.timeEnd = std::chrono::duration_cast<std::chrono::microseconds>(timer.time_since_epoch()).count();
 				FlameGraphWriter::instance().addTracePoint(m_tracepoint);
 			}
 		private:
 			TracePoint m_tracepoint;
-#ifdef _WIN32
-			static void convertToMicroSecond(LARGE_INTEGER& time)
-			{
-				LARGE_INTEGER Frequency;
-				QueryPerformanceFrequency(&Frequency);
-				// Convert to ms
-				time.QuadPart *= 1000000;
-				time.QuadPart /= Frequency.QuadPart;
-			}
-#else
-			static const int64_t TICKS_PER_SECOND = 1000000L;
-#endif
 	};
 } // namespace profiler
 
