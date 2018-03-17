@@ -134,9 +134,11 @@ namespace Profiler {
 			}
 			void addTracePoint(const TracePoint& point) { m_tracepoints.push_back(point); }
 		private:
-			FlameGraphWriter() {};
-			FlameGraphWriter(const FlameGraphWriter&); // No copy allowed
-			FlameGraphWriter& operator= (const FlameGraphWriter&); // No assignment allowed
+			FlameGraphWriter() {}
+			FlameGraphWriter(const FlameGraphWriter&) = delete; // No copy allowed
+			FlameGraphWriter(const FlameGraphWriter&&) = delete; // No move allowed
+			FlameGraphWriter& operator= (const FlameGraphWriter&) = delete; // No assignment allowed
+			FlameGraphWriter& operator=(FlameGraphWriter&&) = delete; // No move assignment allowed
 
 			std::string m_filename;
 			std::vector<TracePoint> m_tracepoints;
