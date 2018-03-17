@@ -134,7 +134,10 @@ namespace Profiler {
 			}
 			void addTracePoint(const TracePoint& point) { m_tracepoints.push_back(point); }
 		private:
-			FlameGraphWriter() {}
+			FlameGraphWriter() {
+				// Reserve points to avoid early memory reallocations
+				m_tracepoints.reserve(128);
+			}
 			FlameGraphWriter(const FlameGraphWriter&) = delete; // No copy allowed
 			FlameGraphWriter(const FlameGraphWriter&&) = delete; // No move allowed
 			FlameGraphWriter& operator= (const FlameGraphWriter&) = delete; // No assignment allowed
