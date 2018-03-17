@@ -72,13 +72,8 @@ namespace Profiler {
 				// Find first stored profiler time
 				uint64_t profilerTimerStart = std::numeric_limits<uint64_t>::max();
 
-				if (!m_tracepoints.empty()) {
-					for (std::vector<TracePoint>::const_iterator it = m_tracepoints.begin(); it != m_tracepoints.end(); ++it) {
-						profilerTimerStart = std::min(profilerTimerStart, (*it).timeStart);
-					}
-				}
-				else {
-					profilerTimerStart = 0;
+				for (const auto& tracepoint : m_tracepoints) {
+					profilerTimerStart = std::min(profilerTimerStart, tracepoint.timeStart);
 				}
 
 				// Open file
@@ -96,16 +91,17 @@ namespace Profiler {
 					// For each tracepoint write
 					std::string separator = "";
 
-					for (std::vector<TracePoint>::const_iterator it = m_tracepoints.begin(); it != m_tracepoints.end(); ++it) {
+					for (const auto& tracepoint : m_tracepoints) {
+						uint64_t duration = tracepoint.timeEnd - tracepoint.timeStart;
 						ofs << separator << "\n";
 						ofs << "\t\t{";
-						ofs << " \"pid\":" << (*it).processId << ",";
-						ofs << " \"tid\":" << (*it).threadId << ",";
-						ofs << " \"ts\":" << (*it).timeStart - profilerTimerStart << ",";
-						ofs << " \"dur\":" << (*it).timeEnd - (*it).timeStart << ",";
+						ofs << " \"pid\":" << tracepoint.processId << ",";
+						ofs << " \"tid\":" << tracepoint.threadId << ",";
+						ofs << " \"ts\":" << tracepoint.timeStart - profilerTimerStart << ",";
+						ofs << " \"dur\":" << duration << ",";
 						ofs << " \"ph\":\"X\",";
-						ofs << " \"name\":\"" << (*it).name << "\",";
-						ofs << " \"cat\":\"" << (*it).category << "\"";
+						ofs << " \"name\":\"" << tracepoint.name << "\",";
+						ofs << " \"cat\":\"" << tracepoint.category << "\"";
 						ofs << "}";
 						separator = ",";
 					}
@@ -114,11 +110,9 @@ namespace Profiler {
 					// End trace events
 
 					// Begin metadata
-					if (!m_metadata.empty()) {
-						for (MetadataConstIterator it = m_metadata.begin(); it != m_metadata.end(); it++) {
-							ofs << ",\n";
-							ofs << "\t\"" << (*it).first << "\": \"" << (*it).second << "\"";
-						}
+					for (const auto& metadata : m_metadata) {
+						ofs << ",\n";
+						ofs << "\t\"" << metadata.first << "\": \"" << metadata.second << "\"";
 					}
 
 					// End metadata
@@ -147,7 +141,6 @@ namespace Profiler {
 			std::string m_filename;
 			std::vector<TracePoint> m_tracepoints;
 			std::vector<std::pair<std::string, std::string>> m_metadata;
-			typedef std::vector<std::pair<std::string, std::string>>::const_iterator MetadataConstIterator;
 	};
 
 	class Zone {
